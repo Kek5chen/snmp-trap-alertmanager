@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Alerts</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        :root {
+            --bg: #ffffff;
+            --page: #f8fafc;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e5e7eb;
+            --accent-critical: #ef4444;
+            --accent-warn: #ef7744;
+            --accent-info: #44a8ef;
+            --chip-bg: #f3f4f6;
+            --chip-border: #e5e7eb;
+            --community-bg: #ff8888;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 2rem;
+            background: var(--page);
+            color: var(--text);
+            font: 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        }
+
+        h1 { margin: 0 0 1rem; font-size: 1.25rem; }
+        .grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 2fr));
+            align-items: start;
+        }
+
+        .alert-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            display: grid;
+            grid-template-rows: auto auto 2fr auto;
+            gap: .25rem;
+            min-height: 140px;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .alert-card.critical { border-left: 6px solid var(--accent-critical); }
+        .alert-card.warning { border-left: 6px solid var(--accent-warn); }
+        .alert-card.info { border-left: 6px solid var(--accent-info); }
+
+        .alert-card header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: .75rem;
+            margin-bottom: .25rem;
+        }
+        .alert-name {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+        .count {
+            font-size: .85rem;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .critical .alert-meta .chip {
+            --chip-shadow: rgba(254, 74, 74, 0.65);
+        }
+
+        .warning .alert-meta .chip {
+            --chip-shadow: rgba(255, 129, 31, 0.65);
+        }
+
+        .info .alert-meta .chip {
+            --chip-shadow: rgba(74, 185, 254, 0.65);
+        }
+
+        .alert-meta .chip {
+            box-shadow: 2px 2px 4px -2px var(--chip-shadow);
+            background: transparent;
+        }
+
+        .alert-meta:first-of-type {
+        }
+
+        .alert-meta:last-of-type {
+            margin-bottom: 0.25rem;
+        }
+
+        details.times { margin: .25rem 0 .5rem; }
+        details.times > summary {
+            cursor: pointer;
+            list-style: none;
+            font-weight: 600;
+            padding: .25rem 0;
+            user-select: none;
+            font-size: 0.80rem;
+            text-decoration: underline;
+        }
+        details.times[open] > summary { margin-bottom: .25rem; }
+        .times-list {
+            margin: 0;
+            max-height: 220px;
+            overflow: auto;
+            scrollbar-gutter: stable;
+        }
+        .times-list li {
+            margin: .2rem 0;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+            font-size: .6rem;
+            word-break: break-word;
+        }
+
+        .labels {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .4rem;
+            margin-top: .2rem;
+            margin-bottom: .6rem;
+            min-width: 0;
+        }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: .25rem;
+            font-size: .6rem;
+            line-height: 1;
+            padding: .25rem .35rem;
+            border: 1px solid var(--chip-border);
+            background: var(--chip-bg);
+            border-radius: 5px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+            white-space: normal;
+            max-width: 100%;
+            min-width: 0;
+        }
+        .chip .k {
+            white-space: nowrap;
+            opacity: .8;
+        }
+        .chip .eq {
+            opacity: .6;
+        }
+        .chip .v {
+            min-width: 0;
+            text-overflow: ellipsis;
+            overflow: clip;
+            white-space: nowrap;
+        }
+        .card-footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .btn-clear {
+            appearance: none;
+            border: 1px solid #ef4444;
+            background: #fee2e2;
+            color: #991b1b;
+            border-radius: 8px;
+            padding: .5rem .75rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-clear:hover { background: #fecaca; }
+        .empty {
+            color: var(--muted);
+            background: var(--bg);
+            border: 1px dashed var(--border);
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<h1>SNMP Trap Alerts ( {{ alerts | length}} )</h1>
+
+{% if alerts | length == 0 %}
+<div class="empty">No alerts</div>
+{% else %}
+<div class="grid">
+    {% for alert in alerts %}
+    <article class="alert-card {{ alert.severity }}" id="alert-{{ alert.hash }}">
+        <header>
+            <h2 class="alert-name">{{ alert.name | default(value="unnamed") }}</h2>
+
+            {% set n = alert.times | length %}
+            <span class="count">
+              {{ n }} {% if n == 1 %}time{% else %}times{% endif %}
+            </span>
+        </header>
+
+        <span class="labels alert-meta">
+            <span class="chip">
+                <span class="k">Community</span><span class="eq">=</span><span class="v">{{ alert.community }}</span>
+            </span>
+            <span class="chip">
+                <span class="k">Severity</span><span class="eq">=</span><span class="v">{{ alert.severity }}</span>
+            </span>
+        </span>
+
+        <div class="labels">
+            {% for k, v in alert.labels %}
+            <span class="chip"><span class="k">{{ k }}</span><span class="eq">=</span><span class="v">{{ v }}</span></span>
+            {% endfor %}
+        </div>
+
+        <details class="times">
+            <summary>Show times ({{ n }})</summary>
+            <ol class="times-list">
+                {% for t in alert.times %}
+                <li><time>{{ t }}</time></li>
+                {% endfor %}
+            </ol>
+        </details>
+
+        <div class="card-footer">
+            <form method="post" action="/api/clear">
+                <input type="hidden" name="hash" value="{{ alert.hash }}">
+                <button type="submit" class="btn-clear">Clear</button>
+            </form>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+{% endif %}
+</body>
+</html>

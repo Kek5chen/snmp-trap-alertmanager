@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM snmp_trap WHERE \"name\" = $1 AND \"community\" = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c76ce0126d905df9f24db17de5b1ae4fc96a87e7d68b39559636d0262d90ab72"
+}

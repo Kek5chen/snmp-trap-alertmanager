@@ -1,0 +1,21 @@
+[package]
+name = "snmp-trap-alertmanager"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+sqlx = { version = "0.8", features = ["postgres", "runtime-tokio", "time"] }
+config = "0.15"
+clap = { version = "4.5.47", features = ["derive", "env"] }
+lazy_static = "1.5"
+tokio = { version = "1.47.1", features = ["rt", "rt-multi-thread", "macros"] }
+serde = "1.0"
+serde_json = "1.0"
+time = { version = "0.3", features = ["serde","formatting"] }
+anyhow = "1.0"
+log = "0.4"
+env_logger = "0.11"
+dotenvy = "0.15"
+actix-web = "4.11"
+tera = "1.20"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json"] }

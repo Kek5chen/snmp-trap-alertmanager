@@ -23,8 +23,10 @@ lazy_static! {
 
 #[derive(Debug, Parser)]
 pub struct CLISettings {
+    #[arg(long, short, help = "Path of the configuration file [config]")]
     config: Option<PathBuf>,
-    web_listen: Option<SocketAddr>,
+    #[arg(long, short, help = "Socket Address of the web frontend [127.0.0.1:7788]")]
+    listen: Option<SocketAddr>,
 }
 
 impl CLISettings {
@@ -41,7 +43,7 @@ fn web_listen_default() -> SocketAddr {
 }
 
 fn announce_sec_default() -> u32 {
-    60 * 1
+    60
 }
 
 fn community_label_default() -> String {
@@ -67,7 +69,7 @@ impl Settings {
     }
 
     pub fn web_listen(&self) -> SocketAddr {
-        CLI.web_listen.unwrap_or(self.web_listen)
+        CLI.listen.unwrap_or(self.web_listen)
     }
 
     pub fn db_url(&self) -> &str {

@@ -222,6 +222,9 @@
                 {% for t in alert.times %}
                 <li><time>{{ t }}</time></li>
                 {% endfor %}
+                {% if alert.times | length > 1 %}
+                <li>Min/Avg/Max: {{ alert.time_min }} / {{ alert.time_avg }} / {{ alert.time_max }}</li>
+                {% endif %}
             </ol>
         </details>
 

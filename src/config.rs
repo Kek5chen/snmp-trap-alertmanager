@@ -25,7 +25,11 @@ lazy_static! {
 pub struct CLISettings {
     #[arg(long, short, help = "Path of the configuration file [config]")]
     config: Option<PathBuf>,
-    #[arg(long, short, help = "Socket Address of the web frontend [127.0.0.1:7788]")]
+    #[arg(
+        long,
+        short,
+        help = "Socket Address of the web frontend [127.0.0.1:7788]"
+    )]
     listen: Option<SocketAddr>,
 }
 

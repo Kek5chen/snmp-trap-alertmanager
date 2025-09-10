@@ -2,15 +2,16 @@ use crate::sanitize::{
     clean_alert_name, greedy_truncate_labels_prefix, greedy_truncate_labels_suffix,
 };
 use anyhow::{anyhow, bail};
+use itertools::Itertools;
 use log::warn;
 use serde::Serialize;
 use sqlx::postgres::PgRow;
 use sqlx::{Column, Row};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::fmt::Display;
 use std::hash::{DefaultHasher, Hash, Hasher};
 use std::str::FromStr;
-use time::{OffsetDateTime, PrimitiveDateTime};
+use time::{Duration, OffsetDateTime, PrimitiveDateTime};
 
 const DROP_COLUMNS: &[&str] = &["mib", "oid", "source", "version", "sysUpTime.0", "host"];
 
@@ -69,9 +70,11 @@ impl Alert {
         name: String,
         severity: Severity,
         community: String,
-        times: Vec<OffsetDateTime>,
+        times: BTreeSet<OffsetDateTime>,
         labels: BTreeMap<String, String>,
     ) -> Alert {
+        let times = times.iter().cloned().collect_vec();
+
         let mut alert = Alert {
             hash: 0,
             severity,
@@ -130,6 +133,24 @@ impl Alert {
 
     pub fn times(&self) -> &[OffsetDateTime] {
         &self.times
+    }
+
+    pub fn iter_intervals(&self) -> impl Iterator<Item = Duration> {
+        self.times.windows(2).map(|w| w[1] - w[0])
+    }
+
+    pub fn interval_min(&self) -> Option<Duration> {
+        self.iter_intervals().min()
+    }
+
+    pub fn interval_avg(&self) -> Option<Duration> {
+        self.iter_intervals()
+            .sum1()
+            .map(|sum: Duration| sum / self.times.windows(2).count() as f32)
+    }
+
+    pub fn interval_max(&self) -> Option<Duration> {
+        self.iter_intervals().max()
     }
 
     pub fn hash(&self) -> u64 {
@@ -224,7 +245,13 @@ impl TryFrom<&PgRow> for Alert {
         let severity = extract_severity(&mut labels).unwrap_or(Severity::Critical);
         let time = time.assume_utc();
 
-        Ok(Alert::new(name, severity, community, vec![time], labels))
+        Ok(Alert::new(
+            name,
+            severity,
+            community,
+            BTreeSet::from([time]),
+            labels,
+        ))
     }
 }
 
@@ -258,6 +285,7 @@ fn generate_alerts(raw_alerts: impl IntoIterator<Item = Alert>) -> HashSet<Alert
             None => alerts.insert(alert),
             Some(mut existing) => {
                 existing.times.extend(alert.times);
+                existing.times.sort();
                 alerts.insert(existing)
             }
         };

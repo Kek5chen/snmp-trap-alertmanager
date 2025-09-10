@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use std::cmp;
 use std::collections::BTreeMap;
 use tera::{Context, Tera};
+use time::Duration;
 
 #[derive(Serialize)]
 pub struct AlertView {
@@ -16,6 +17,9 @@ pub struct AlertView {
     pub severity: String,
     pub name: String,
     pub times: Vec<String>,
+    pub time_min: String,
+    pub time_avg: String,
+    pub time_max: String,
     pub labels: BTreeMap<String, String>,
     pub community: String,
 }
@@ -26,12 +30,18 @@ impl From<&Alert> for AlertView {
         let name = alert.pretty_name();
         let labels = alert.pretty_labels();
         let times = alert.times().iter().map(|t| t.to_string()).collect();
+        let time_min = format!("{:.3}", alert.interval_min().unwrap_or(Duration::ZERO));
+        let time_avg = format!("{:.3}", alert.interval_avg().unwrap_or(Duration::ZERO));
+        let time_max = format!("{:.3}", alert.interval_max().unwrap_or(Duration::ZERO));
 
         AlertView {
             hash: alert.hash(),
             severity,
             name,
             times,
+            time_min,
+            time_avg,
+            time_max,
             labels,
             community: alert.community().to_string(),
         }

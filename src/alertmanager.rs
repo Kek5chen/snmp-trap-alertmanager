@@ -14,7 +14,7 @@ pub struct AlertmanagerRelay {
     url: String,
     client: Client,
     db: Arc<TrapDb>,
-    last_announce: Instant,
+    last_announce_try: Instant,
 }
 
 impl AlertmanagerRelay {
@@ -23,24 +23,25 @@ impl AlertmanagerRelay {
             url,
             client: Client::default(),
             db,
-            last_announce: Instant::now() - Duration::days(360),
+            last_announce_try: Instant::now() - Duration::days(360),
         }
     }
 
     pub async fn run_relay_blocking(&mut self) {
         loop {
-            let next_announce = self.last_announce + CONFIG.alertmanager_announce_duration();
+            let next_announce = self.last_announce_try + CONFIG.alertmanager_announce_duration();
             tokio::time::sleep_until(next_announce.into()).await;
 
             match self.relay_alerts().await {
                 Ok(_) => {
                     debug!("SNMP Trap alerts successfully relayed to Alertmanager");
-                    self.last_announce = Instant::now()
                 }
                 Err(e) => {
                     warn!("Couldn't relay alerts to alertmanager: {e}");
                 }
             }
+
+            self.last_announce_try = Instant::now()
         }
     }
 

@@ -39,7 +39,7 @@ impl From<&Alert> for AlertView {
 #[get("/")]
 async fn alerts_view(db: Data<TrapDb>, templates: Data<Tera>) -> Html {
     let mut alerts: Vec<AlertView> = db.cached_alerts().await.iter().map(Into::into).collect();
-    alerts.sort_by(|a, b| a.times.cmp(&b.times));
+    alerts.sort_by(|a, b| b.times.cmp(&a.times));
 
     let mut ctx = Context::new();
     ctx.insert("alerts", &alerts);

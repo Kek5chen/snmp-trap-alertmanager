@@ -19,3 +19,4 @@ dotenvy = "0.15"
 actix-web = "4.11"
 tera = "1.20"
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json"] }
+itertools = "0.14"

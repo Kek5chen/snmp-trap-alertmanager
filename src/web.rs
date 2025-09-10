@@ -3,8 +3,10 @@ use crate::trap_db::TrapDb;
 use actix_web::http::header;
 use actix_web::web::{Data, Form, Html};
 use actix_web::{HttpResponse, get, post};
+use itertools::Itertools;
 use log::error;
 use serde::{Deserialize, Serialize};
+use std::cmp;
 use std::collections::BTreeMap;
 use tera::{Context, Tera};
 
@@ -38,8 +40,13 @@ impl From<&Alert> for AlertView {
 
 #[get("/")]
 async fn alerts_view(db: Data<TrapDb>, templates: Data<Tera>) -> Html {
-    let mut alerts: Vec<AlertView> = db.cached_alerts().await.iter().map(Into::into).collect();
-    alerts.sort_by(|a, b| b.times.cmp(&a.times));
+    let alerts: Vec<AlertView> = db
+        .cached_alerts()
+        .await
+        .iter()
+        .sorted_by_key(|a: &&Alert| cmp::Reverse(a.latest()))
+        .map(Into::into)
+        .collect();
 
     let mut ctx = Context::new();
     ctx.insert("alerts", &alerts);

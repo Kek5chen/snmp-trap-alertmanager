@@ -31,9 +31,9 @@ pub struct CLISettings {
 
 impl CLISettings {
     pub fn config_path(&self) -> &str {
-        match &self.config {
+        match self.config {
             None => "config",
-            Some(config) => config.to_str().unwrap(),
+            Some(ref config) => config.to_str().unwrap(),
         }
     }
 }

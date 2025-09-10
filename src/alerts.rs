@@ -57,7 +57,7 @@ impl FromStr for Severity {
         } else if WARN.iter().any(|w| s.contains(w)) {
             Ok(Severity::Warning)
         } else if INFO.iter().any(|i| s.contains(i)) {
-            Ok(Severity::Warning)
+            Ok(Severity::Info)
         } else {
             Err(anyhow!("unknown severity"))
         }
@@ -94,7 +94,7 @@ impl Alert {
             .iter()
             .min()
             .cloned()
-            .unwrap_or_else(|| OffsetDateTime::now_utc())
+            .unwrap_or_else(OffsetDateTime::now_utc)
     }
 
     pub fn latest(&self) -> OffsetDateTime {
@@ -102,7 +102,7 @@ impl Alert {
             .iter()
             .max()
             .cloned()
-            .unwrap_or_else(|| OffsetDateTime::now_utc())
+            .unwrap_or_else(OffsetDateTime::now_utc)
     }
 
     pub fn pretty_name(&self) -> String {
@@ -221,7 +221,7 @@ impl TryFrom<&PgRow> for Alert {
             bail!("No time in database row found for alert");
         };
 
-        let severity = extract_severity(&mut labels).unwrap_or_else(|| Severity::Critical);
+        let severity = extract_severity(&mut labels).unwrap_or(Severity::Critical);
         let time = time.assume_utc();
 
         Ok(Alert::new(name, severity, community, vec![time], labels))

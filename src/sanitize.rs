@@ -31,7 +31,7 @@ fn find_greedy_label_prefix(labels: &BTreeMap<String, String>) -> String {
         return String::new();
     };
 
-    let common_prefix = labels.keys().fold(first, |common, k| {
+    labels.keys().fold(first, |common, k| {
         let mut prefix_end = 0;
 
         for (a, b) in common.chars().zip(k.chars()) {
@@ -43,9 +43,7 @@ fn find_greedy_label_prefix(labels: &BTreeMap<String, String>) -> String {
         }
 
         common.chars().take(prefix_end).collect()
-    });
-
-    common_prefix
+    })
 }
 
 fn find_greedy_label_suffix(labels: &BTreeMap<String, String>) -> String {
@@ -53,7 +51,7 @@ fn find_greedy_label_suffix(labels: &BTreeMap<String, String>) -> String {
         return String::new();
     };
 
-    let common_prefix = labels.keys().fold(first, |common, k| {
+    labels.keys().fold(first, |common, k| {
         let mut suffix_end = 0;
 
         for (a, b) in common.chars().rev().zip(k.chars().rev()) {
@@ -72,9 +70,7 @@ fn find_greedy_label_suffix(labels: &BTreeMap<String, String>) -> String {
             .chars()
             .rev()
             .collect()
-    });
-
-    common_prefix
+    })
 }
 
 pub fn clean_alert_name(mut name: String) -> String {

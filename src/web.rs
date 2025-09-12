@@ -80,11 +80,10 @@ async fn clear_alert(db: Data<TrapDb>, Form(alert): Form<AlertHash>) -> HttpResp
     if let Err(e) = db.clear_alerts(alert.hash).await {
         error!("Failed to clear alerts: {e}");
         return HttpResponse::InternalServerError()
-            .insert_header((header::LOCATION, "/"))
-            .finish();
+            .body("Failed to clear alerts");
     }
 
-    HttpResponse::Ok()
+    HttpResponse::Found()
         .insert_header((header::LOCATION, "/"))
         .finish()
 }

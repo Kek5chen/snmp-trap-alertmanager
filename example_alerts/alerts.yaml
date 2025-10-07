@@ -1,0 +1,10 @@
+alerts:
+- name: ruckusSCGAPDisconnected
+  annotations:
+    summary: Access Point "{{ labels.APDescription }}" disconnected
+    description: AP has disconnected
+  labels:
+    test: true
+    instance: "{{ labels.APName }}"
+  drop_labels:
+  - APName

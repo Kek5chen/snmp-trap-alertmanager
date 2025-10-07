@@ -107,8 +107,6 @@ fn make_label_query(alert: &'_ Alert) -> QueryBuilder<'_, Postgres> {
         builder.push(label.0);
         builder.push(r#"" = "#);
         builder.push_bind(label.1);
-
-        println!("{} = {}", label.0, label.1);
     }
 
     builder

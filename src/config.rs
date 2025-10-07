@@ -3,7 +3,7 @@ use config::Config;
 use lazy_static::lazy_static;
 use serde::Deserialize;
 use std::net::SocketAddr;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use time::Duration;
 use time::ext::NumericalDuration;
 
@@ -31,6 +31,14 @@ pub struct CLISettings {
         help = "Socket Address of the web frontend [127.0.0.1:7788]"
     )]
     listen: Option<SocketAddr>,
+    #[arg(
+        long,
+        help = "The directory containing .yaml files to enrich received alerts"
+    )]
+    alert_dir: Option<PathBuf>,
+
+    #[arg(long, help = "Only test the validity of alert enrichments inside --alert-dir <dir>", requires = "alert_dir")]
+    pub test_alerts: bool,
 }
 
 impl CLISettings {
@@ -65,6 +73,7 @@ pub struct Settings {
     alertmanager_announce_sec: u32,
     #[serde(default = "community_label_default")]
     alertmanager_community_label: String,
+    alert_dir: Option<PathBuf>,
 }
 
 impl Settings {
@@ -90,5 +99,9 @@ impl Settings {
 
     pub fn alertmanager_community_label(&self) -> &str {
         &self.alertmanager_community_label
+    }
+
+    pub fn alert_dir(&self) -> Option<&Path> {
+        CLI.alert_dir.as_deref().or(self.alert_dir.as_deref())
     }
 }

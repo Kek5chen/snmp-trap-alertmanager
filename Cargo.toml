@@ -6,17 +6,20 @@ edition = "2024"
 [dependencies]
 sqlx = { version = "0.8", features = ["postgres", "runtime-tokio", "time"] }
 config = "0.15"
-clap = { version = "4.5.47", features = ["derive", "env"] }
+clap = { version = "4.5", features = ["derive", "env"] }
 lazy_static = "1.5"
-tokio = { version = "1.47.1", features = ["rt", "rt-multi-thread", "macros"] }
-serde = "1.0"
+tokio = { version = "1.47", features = ["rt", "rt-multi-thread", "macros"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_norway = "0.9"
 serde_json = "1.0"
+serde_regex = "1.1"
 time = { version = "0.3", features = ["serde","formatting"] }
 anyhow = "1.0"
 log = "0.4"
 env_logger = "0.11"
 dotenvy = "0.15"
 actix-web = "4.11"
-tera = "1.20"
+tera = { git = "https://github.com/Kek5chen/tera", branch = "feat-strict-mode", features = ["builtins"] }
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json"] }
 itertools = "0.14"
+regex = "1.11"

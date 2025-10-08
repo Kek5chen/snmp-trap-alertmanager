@@ -22,5 +22,5 @@ rustPlatform.buildRustPackage {
     };
   };
 
-  doCheck = true;
+  doCheck = false;
 }

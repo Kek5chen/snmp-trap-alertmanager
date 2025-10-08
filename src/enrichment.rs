@@ -84,8 +84,8 @@ impl TryFrom<RawAlertEnrichmentDefinition> for AlertEnrichmentDefinition {
 impl AlertEnrichmentDefinition {
     pub fn new(
         name: regex::Regex,
-        annotations: Option<HashMap<String, String>>,
         labels: Option<HashMap<String, String>>,
+        annotations: Option<HashMap<String, String>>,
         drop_labels: Option<Vec<regex::Regex>>,
     ) -> anyhow::Result<Self> {
         let annotations = annotations.unwrap_or_default();
@@ -122,7 +122,6 @@ impl AlertEnrichmentDefinition {
             for name in &label_names {
                 if rgx.find_at(name, 0).is_some_and(|m| m.len() == name.len()) {
                     alert.remove_label(name);
-                    break;
                 }
             }
         }

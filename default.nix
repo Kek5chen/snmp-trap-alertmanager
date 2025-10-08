@@ -15,7 +15,12 @@ rustPlatform.buildRustPackage {
     perl
   ];
 
-  cargoLock.lockFile = ./Cargo.lock;
+  cargoLock = {
+    lockFile = ./Cargo.lock;
+    outputHashes = {
+      "tera-1.20.0" = "sha256-28TZWznuiijkbrBHZ8ZvWP6+OWQ4nwTkzNSWu4lul1c=";
+    };
+  };
 
   doCheck = true;
 }
